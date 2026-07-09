@@ -1,0 +1,12 @@
+.agent
+.env
+.env*.local
+.next
+node_modules
+coverage
+data
+*.log
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
