@@ -1,6 +1,7 @@
 services:
   web:
     build: .
+    image: ghcr.io/fevolq/feishu-hub:latest
     env_file:
       - .env
     ports:
@@ -12,6 +13,7 @@ services:
 
   scheduler:
     build: .
+    image: ghcr.io/fevolq/feishu-hub:latest
     env_file:
       - .env
     volumes:
