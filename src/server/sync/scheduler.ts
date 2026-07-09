@@ -1,12 +1,12 @@
-import { appConfig } from "@/server/config";
+import { appConfig } from "../config";
 import {
   listDueCompanySyncSchedules,
   setCompanySyncScheduleRunTimes,
   type CompanySyncSchedule
-} from "@/server/db/repositories/sync-schedules";
-import { serverLogger } from "@/server/logger";
-import { getNextCronRunAt } from "@/server/sync/cron";
-import { syncCompany } from "@/server/sync/runner";
+} from "../db/repositories/sync-schedules";
+import { serverLogger } from "../logger";
+import { getNextCronRunAt } from "./cron";
+import { syncCompany } from "./runner";
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -15,8 +15,8 @@ export type DueScheduleBatch = {
   scheduleIds: number[];
 };
 
-export const buildDueScheduleBatches = (
-  schedules: Pick<CompanySyncSchedule, "id" | "companyId">[]
+export const buildDueScheduleBatches = <T extends Pick<CompanySyncSchedule, "id" | "companyId">>(
+  schedules: T[]
 ): DueScheduleBatch[] => {
   const batches = new Map<number, number[]>();
 

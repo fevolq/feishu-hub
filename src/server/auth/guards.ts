@@ -1,8 +1,8 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { NextResponse } from "next/server";
-import { appConfig } from "@/server/config";
-import { verifySessionCookie } from "@/server/auth/session";
+import { appConfig } from "../config";
+import { verifySessionCookie } from "./session";
 
 export const isAuthenticated = async () => {
   const cookieStore = await cookies();

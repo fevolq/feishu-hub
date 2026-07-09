@@ -1,11 +1,11 @@
-import { getCompany } from "@/server/db/repositories/companies";
+import { getCompany } from "../db/repositories/companies";
 import {
   finishSyncRun,
   startSyncRun,
   type SyncTriggerType
-} from "@/server/db/repositories/sync-runs";
-import { FeishuClient } from "@/server/feishu/client";
-import { persistOrgSnapshot } from "@/server/sync/persist";
+} from "../db/repositories/sync-runs";
+import { FeishuClient } from "../feishu/client";
+import { persistOrgSnapshot } from "./persist";
 
 export const syncCompany = async (companyId: number, triggerType: SyncTriggerType = "manual") => {
   const company = getCompany(companyId);

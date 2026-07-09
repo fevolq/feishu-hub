@@ -35,6 +35,7 @@ describe("company ordering", () => {
     const second = repo.createCompany({ name: "Beta", appId: "cli_b", appSecret: "secret_b" });
 
     expect(() => repo.updateCompanySortOrder([first!.id, first!.id])).toThrow("重复公司");
+    expect(() => repo.updateCompanySortOrder([first!.id])).toThrow("全部公司");
     expect(() => repo.updateCompanySortOrder([first!.id, second!.id, 999])).toThrow("不存在的公司");
   });
 });

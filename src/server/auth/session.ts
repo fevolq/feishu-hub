@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { appConfig } from "@/server/config";
+import { appConfig } from "../config";
 
 type SessionPayload = {
   exp: number;
@@ -49,7 +49,7 @@ export const verifyPassword = (password: string) => {
 export const sessionCookieOptions = {
   httpOnly: true,
   sameSite: "lax" as const,
-  secure: process.env.NODE_ENV === "production",
+  secure: appConfig.sessionCookieSecure,
   path: "/",
   maxAge: appConfig.sessionTtlSeconds
 };

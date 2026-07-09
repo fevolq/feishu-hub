@@ -70,9 +70,14 @@ export function UsersConsole({ companies }: { companies: CompanyOption[] }) {
   const openHistory = async (user: UserItem) => {
     if (!companyId) return;
     setHistoryUser(user);
-    const response = await fetch(`/api/users/${encodeURIComponent(user.openId)}/history?companyId=${companyId}`);
-    const body = await readApiJson<{ events?: HistoryEvent[] }>(response, "加载历史失败");
-    setHistory(body.events || []);
+    setHistory([]);
+    try {
+      const response = await fetch(`/api/users/${encodeURIComponent(user.openId)}/history?companyId=${companyId}`);
+      const body = await readApiJson<{ events?: HistoryEvent[] }>(response, "加载历史失败");
+      setHistory(body.events || []);
+    } catch (error) {
+      Message.error(error instanceof Error ? error.message : "加载历史失败");
+    }
   };
 
   useEffect(() => {

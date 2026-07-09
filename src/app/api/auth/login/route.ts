@@ -7,8 +7,8 @@ import {
 } from "@/server/auth/session";
 
 export async function POST(request: NextRequest) {
-  const body = (await request.json().catch(() => null)) as { password?: string } | null;
-  if (!body?.password || !verifyPassword(body.password)) {
+  const body = (await request.json().catch(() => null)) as { password?: unknown } | null;
+  if (typeof body?.password !== "string" || !verifyPassword(body.password)) {
     return NextResponse.json({ error: "密码不正确" }, { status: 401 });
   }
 

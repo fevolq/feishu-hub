@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import Database from "better-sqlite3";
-import { appConfig } from "@/server/config";
+import { appConfig } from "../config";
 
 let database: Database.Database | null = null;
 

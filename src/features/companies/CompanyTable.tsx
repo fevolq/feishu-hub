@@ -95,6 +95,7 @@ export function CompanyTable({
             <Button
               icon={<IconRefresh />}
               size="small"
+              disabled={!record.enabled}
               loading={syncingCompanyId === record.id}
               onClick={() => onSync(record)}
             />

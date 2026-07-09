@@ -1,5 +1,5 @@
 import { CronExpressionParser } from "cron-parser";
-import { appConfig } from "@/server/config";
+import { appConfig } from "../config";
 
 export const normalizeCrontabExpression = (expression: string) => expression.trim().replace(/\s+/g, " ");
 

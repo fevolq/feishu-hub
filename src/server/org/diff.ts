@@ -1,4 +1,4 @@
-import type { User } from "@/server/org/types";
+import type { User } from "./types";
 
 export type UserDiffType = "created" | "updated" | "resigned" | "restored";
 

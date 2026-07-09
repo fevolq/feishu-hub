@@ -1,13 +1,13 @@
-import { getDb } from "@/server/db/connection";
+import { getDb } from "../db/connection";
 import type { Statement } from "better-sqlite3";
-import { getCurrentUsersMap, replaceDepartments } from "@/server/db/repositories/org";
-import type { Department, User } from "@/server/org/types";
+import { getCurrentUsersMap, replaceDepartments } from "../db/repositories/org";
+import type { Department, User } from "../org/types";
 import {
   buildDailySnapshotRecord,
   toSnapshotDate,
   type DailySnapshotRecord
-} from "@/server/org/snapshots";
-import { diffUserSnapshots } from "@/server/org/diff";
+} from "../org/snapshots";
+import { diffUserSnapshots } from "../org/diff";
 
 export type PersistSnapshotInput = {
   companyId: number;

@@ -1,5 +1,5 @@
-import { appConfig } from "@/server/config";
-import type { FeishuCredentials, Department, User } from "@/server/org/types";
+import { appConfig } from "../config";
+import type { FeishuCredentials, Department, User } from "../org/types";
 
 type FeishuResponse<T> = {
   code: number;

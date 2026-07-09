@@ -43,6 +43,7 @@ npm run worker
 ```env
 APP_PASSWORD=change-me
 SESSION_SECRET=change-me
+SESSION_COOKIE_SECURE=false
 SYNC_POLL_SECONDS=60
 APP_TIMEZONE=Asia/Shanghai
 ```
@@ -51,6 +52,7 @@ APP_TIMEZONE=Asia/Shanghai
 
 - `APP_PASSWORD`：后台访问密码。
 - `SESSION_SECRET`：用于签名登录 Cookie，建议使用足够长的随机字符串。
+- `SESSION_COOKIE_SECURE`：是否给登录 Cookie 添加 `Secure` 属性。使用 `http://IP:端口` 访问时保持 `false`；仅 HTTPS 部署时设为 `true`。
 
 如需指定数据库路径，可额外配置：
 
@@ -77,8 +79,10 @@ docker compose down
 - `web`：Web 后台。
 - `scheduler`：定时同步 worker。
 
-默认访问端口是 `3000`。如果需要修改端口，在 `.env` 中设置：
+默认访问端口是 `3000`。如果需要修改宿主机对外端口，在 `.env` 中设置：
 
 ```env
-PORT=3001
+EXPOSE_PORT=3001
 ```
+
+不要用 `PORT` 修改对外端口；`PORT` 会影响容器内 Next.js 监听端口。

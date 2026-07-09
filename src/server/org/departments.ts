@@ -1,4 +1,4 @@
-import type { DepartmentListItem } from "@/server/db/repositories/org";
+import type { DepartmentListItem } from "../db/repositories/org";
 
 export type DepartmentTreeNode = {
   key: string;

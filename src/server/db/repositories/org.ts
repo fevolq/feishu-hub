@@ -1,6 +1,6 @@
-import { getDb } from "@/server/db/connection";
-import type { Department, User } from "@/server/org/types";
-import { diffExtraFields } from "@/server/org/diff";
+import { getDb } from "../connection";
+import type { Department, User } from "../../org/types";
+import { diffExtraFields } from "../../org/diff";
 
 export type CurrentUserRow = {
   id: number;

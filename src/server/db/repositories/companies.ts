@@ -1,4 +1,4 @@
-import { getDb } from "@/server/db/connection";
+import { getDb } from "../connection";
 
 export type Company = {
   id: number;
@@ -171,6 +171,12 @@ export const updateCompany = (id: number, input: Partial<CompanyInput>) => {
 };
 
 export const updateCompanySortOrder = (companyIds: number[]) => {
+  const db = getDb();
+  const { total } = db.prepare("SELECT COUNT(*) AS total FROM companies").get() as { total: number };
+  if (companyIds.length !== total) {
+    throw new Error("公司排序必须包含全部公司");
+  }
+
   if (!companyIds.length) {
     return listCompanies();
   }
@@ -180,7 +186,6 @@ export const updateCompanySortOrder = (companyIds: number[]) => {
     throw new Error("公司排序中存在重复公司");
   }
 
-  const db = getDb();
   const placeholders = companyIds.map(() => "?").join(", ");
   const existingRows = db
     .prepare(`SELECT id FROM companies WHERE id IN (${placeholders})`)

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireApiAuth } from "@/server/auth/guards";
+import { getCompany } from "@/server/db/repositories/companies";
 import { listUsers } from "@/server/db/repositories/org";
 import { parsePositiveIntegerParam } from "@/server/http/route-params";
 
@@ -16,6 +17,9 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
   const companyId = parsePositiveIntegerParam(id);
   if (!companyId) {
     return NextResponse.json({ error: "公司 ID 不正确" }, { status: 400 });
+  }
+  if (!getCompany(companyId)) {
+    return NextResponse.json({ error: "公司不存在" }, { status: 404 });
   }
 
   const search = request.nextUrl.searchParams;

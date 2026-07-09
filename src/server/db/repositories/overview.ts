@@ -1,4 +1,4 @@
-import { getDb } from "@/server/db/connection";
+import { getDb } from "../connection";
 
 export type CompanyOverviewCard = {
   id: number;

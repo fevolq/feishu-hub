@@ -1,8 +1,8 @@
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
-import { appConfig } from "@/server/config";
-import type { User } from "@/server/org/types";
+import { appConfig } from "../config";
+import type { User } from "./types";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
