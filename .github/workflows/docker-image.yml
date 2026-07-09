@@ -24,21 +24,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 设置tag变量，根据触发方式不同而变化
-      - name: Set Tag
-        id: set-tag
-        run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "TAG=${{ github.event.inputs.tag }}" >> $GITHUB_ENV
-          else
-            echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-          fi
-
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -47,12 +37,29 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # 智能化提取 Docker 标签，自动处理大小写和手动/自动触发
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          # 即使这里的 github.repository 包含大写，metadata-action 也会自动将其转换为全小写
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            # 如果是手动触发，使用输入的 tag
+            type=raw,value=${{ github.event.inputs.tag }},enable=${{ github.event_name == 'workflow_dispatch' }}
+            # 如果是 push tag 触发，直接提取 tag 名 (例如 v1.0.0)
+            type=ref,event=tag,enable=${{ github.event_name == 'push' }}
+            # 无论哪种触发，同时发布/更新一个 latest 标签
+            type=raw,value=latest
+
       - name: Build and Push Docker Image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: |
-            ghcr.io/${{ github.repository }}:${{ env.TAG }},
-            ghcr.io/${{ github.repository }}:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # 强烈建议加入缓存优化速度（可选）
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
