@@ -3,10 +3,8 @@ services:
     build: .
     env_file:
       - .env
-    environment:
-      DATABASE_PATH: /app/data/feishu-org.sqlite
     ports:
-      - "3000:3000"
+      - "${PORT:-3000}:3000"
     volumes:
       - ./data:/app/data
     command: npm run start
@@ -16,8 +14,6 @@ services:
     build: .
     env_file:
       - .env
-    environment:
-      DATABASE_PATH: /app/data/feishu-org.sqlite
     volumes:
       - ./data:/app/data
     command: npm run worker
