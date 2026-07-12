@@ -32,6 +32,7 @@ type UserItem = {
   leaderName: string | null;
   status: "active" | "resigned";
   lastSeenAt: string;
+  updatedAt: string;
   resignedAt: string | null;
 };
 
@@ -157,6 +158,7 @@ export function DepartmentsConsole({ companies }: { companies: CompanyOption[] }
         { label: "部门", value: selectedUser.departmentName || "-" },
         { label: "上级", value: selectedUser.leaderName || "-" },
         { label: "邮箱", value: selectedUser.email || "-" },
+        { label: "信息更新", value: selectedUser.updatedAt ? formatDateTime(selectedUser.updatedAt) : "-" },
         { label: "最近出现", value: selectedUser.lastSeenAt ? formatDateTime(selectedUser.lastSeenAt) : "-" },
         { label: "员工 ID", value: selectedUser.openId, span: 2 }
       ]

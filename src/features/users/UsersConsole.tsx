@@ -30,6 +30,7 @@ type UserItem = {
   departmentName: string | null;
   status: "active" | "resigned";
   lastSeenAt: string;
+  updatedAt: string;
   resignedAt: string | null;
 };
 
@@ -117,10 +118,10 @@ export function UsersConsole({ companies }: { companies: CompanyOption[] }) {
       )
     },
     {
-      title: "最近出现",
-      dataIndex: "lastSeenAt",
+      title: "信息更新",
+      dataIndex: "updatedAt",
       width: 190,
-      render: (_: unknown, record: UserItem) => formatDateTime(record.lastSeenAt)
+      render: (_: unknown, record: UserItem) => formatDateTime(record.updatedAt)
     },
     {
       title: "操作",

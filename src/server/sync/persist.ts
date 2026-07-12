@@ -102,6 +102,7 @@ export const persistOrgSnapshot = (input: PersistSnapshotInput): PersistSnapshot
       const previousRecord = previousUsers.get(user.openId);
       const previous = previousRecord?.user || null;
       const diff = diffUserSnapshots(previous, user);
+      const updatedAt = diff ? input.occurredAt : previousRecord?.updatedAt || input.occurredAt;
       if (diff) {
         if (diff.type === "created") stats.createdCount += 1;
         if (diff.type === "updated") stats.updatedCount += 1;
@@ -136,7 +137,7 @@ export const persistOrgSnapshot = (input: PersistSnapshotInput): PersistSnapshot
         firstSeenAt,
         input.occurredAt,
         null,
-        input.occurredAt
+        updatedAt
       );
       runDailySnapshotUpsert(
         upsertDailySnapshot,

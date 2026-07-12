@@ -47,6 +47,7 @@ export type UserListItem = {
   departmentStatus: "active" | "deleted" | null;
   status: "active" | "resigned";
   lastSeenAt: string;
+  updatedAt: string;
   resignedAt: string | null;
 };
 
@@ -63,6 +64,7 @@ export type StoredUser = {
   user: User;
   firstSeenAt: string;
   lastSeenAt: string;
+  updatedAt: string;
   resignedAt: string | null;
 };
 
@@ -173,6 +175,7 @@ const rowToStoredUser = (row: CurrentUserRow): StoredUser => ({
   user: rowToUser(row),
   firstSeenAt: row.first_seen_at,
   lastSeenAt: row.last_seen_at,
+  updatedAt: row.updated_at,
   resignedAt: row.resigned_at
 });
 
@@ -246,6 +249,7 @@ export const listUsers = (companyId: number, filters: UserListFilters = {}): Use
     departmentStatus: row.department_status || null,
     status: row.status,
     lastSeenAt: row.last_seen_at,
+    updatedAt: row.updated_at,
     resignedAt: row.resigned_at
   }));
 };
