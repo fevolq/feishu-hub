@@ -1,6 +1,7 @@
 FROM node:24-bookworm-slim AS deps
 WORKDIR /app
 COPY package*.json ./
+COPY scripts/patch-arco-react-19.mjs ./scripts/patch-arco-react-19.mjs
 RUN npm ci
 
 FROM node:24-bookworm-slim AS builder
