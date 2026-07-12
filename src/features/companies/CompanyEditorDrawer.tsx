@@ -24,7 +24,7 @@ export function CompanyEditorDrawer({
     <Drawer
       title={editing ? "编辑公司" : "新增公司"}
       visible={visible}
-      width={520}
+      width="min(520px, 100vw)"
       confirmLoading={loading}
       onOk={onSubmit}
       onCancel={onCancel}

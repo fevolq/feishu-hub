@@ -83,7 +83,13 @@ export function ScheduleDrawer({
 
   return (
     <>
-      <Drawer title={`${company?.name || ""} 定时任务`} visible={visible} width={860} footer={null} onCancel={onClose}>
+      <Drawer
+        title={`${company?.name || ""} 定时任务`}
+        visible={visible}
+        width="min(860px, 100vw)"
+        footer={null}
+        onCancel={onClose}
+      >
         <div className="toolbar">
           <Button type="primary" icon={<IconPlus />} onClick={onCreate}>
             新增 crontab
@@ -105,7 +111,7 @@ export function ScheduleDrawer({
       <Drawer
         title={editingSchedule ? "编辑 crontab" : "新增 crontab"}
         visible={editorVisible}
-        width={460}
+        width="min(460px, 100vw)"
         confirmLoading={loading}
         onOk={onSubmit}
         onCancel={onCloseEditor}

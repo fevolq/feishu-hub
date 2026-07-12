@@ -118,6 +118,7 @@ export function CompanyTable({
       data={companies}
       loading={loading || orderingSaving}
       pagination={false}
+      scroll={{ x: 820 }}
       onRow={(record) => ({
         className: draggingCompanyId === record.id ? "company-row-dragging" : "",
         onDragOver: (event: DragEvent<HTMLTableRowElement>) => {

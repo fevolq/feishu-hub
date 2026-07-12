@@ -37,7 +37,7 @@ const getAvatarText = (name: string) => name.trim().slice(0, 1).toUpperCase() ||
 
 export function UsersConsole({ companies }: { companies: CompanyOption[] }) {
   const [companyId, setCompanyId] = useState<number | undefined>(companies[0]?.id);
-  const [statusFilter, setStatusFilter] = useState<UserStatusFilter>("all");
+  const [statusFilter, setStatusFilter] = useState<UserStatusFilter>("active");
   const [query, setQuery] = useState("");
   const [submittedQuery, setSubmittedQuery] = useState("");
   const [users, setUsers] = useState<UserItem[]>([]);
@@ -88,7 +88,8 @@ export function UsersConsole({ companies }: { companies: CompanyOption[] }) {
     {
       title: "姓名",
       dataIndex: "name",
-      width: 190,
+      width: 140,
+      fixed: "left" as const,
       render: (_: unknown, record: UserItem) => (
         <div className="user-name-cell">
           <Avatar size={28} className="user-avatar">
@@ -134,24 +135,19 @@ export function UsersConsole({ companies }: { companies: CompanyOption[] }) {
 
   return (
     <>
-      <div className="page-head">
-        <div>
-          <h1 className="page-title">员工列表</h1>
-        </div>
-      </div>
       <div className="work-surface">
-        <div className="toolbar">
+        <div className="toolbar users-toolbar">
           <Select
+            className="toolbar-company-select"
             placeholder="公司主体"
             value={companyId}
             onChange={setCompanyId}
-            style={{ width: 220 }}
             options={companies.map((company) => ({ label: company.name, value: company.id }))}
           />
           <Select
+            className="toolbar-status-select"
             value={statusFilter}
             onChange={(value) => setStatusFilter(value as UserStatusFilter)}
-            style={{ width: 120 }}
             options={[
               { label: "全部", value: "all" },
               { label: "在职", value: "active" },
@@ -159,14 +155,20 @@ export function UsersConsole({ companies }: { companies: CompanyOption[] }) {
             ]}
           />
           <Input.Search
+            className="toolbar-search"
             allowClear
             value={query}
             onChange={setQuery}
             onSearch={submitSearch}
             placeholder="姓名、邮箱、岗位"
-            style={{ width: 260 }}
           />
-          <Button icon={<IconRefresh />} onClick={() => submitSearch()} />
+          <Button
+            className="toolbar-refresh"
+            icon={<IconRefresh />}
+            aria-label="刷新员工列表"
+            title="刷新员工列表"
+            onClick={() => submitSearch()}
+          />
         </div>
         <Table
           rowKey="openId"
@@ -180,7 +182,7 @@ export function UsersConsole({ companies }: { companies: CompanyOption[] }) {
       <Drawer
         title={historyUser ? `${historyUser.name} 的变更历史` : "变更历史"}
         visible={Boolean(historyUser)}
-        width="min(920px, 92vw)"
+        width="min(920px, 100vw)"
         footer={null}
         onCancel={() => setHistoryUser(null)}
       >

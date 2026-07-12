@@ -57,12 +57,11 @@ export function DepartmentsConsole({ companies }: { companies: CompanyOption[] }
       const response = await fetch(`/api/companies/${companyId}/departments${params}`);
       const body = await readApiJson<{
         tree?: TreeNode[];
-        users?: UserItem[];
         directUsers?: UserItem[];
         descendantUsers?: UserItem[];
       }>(response, "加载部门失败");
       setTree(body.tree || []);
-      setDirectUsers(body.directUsers || body.users || []);
+      setDirectUsers(body.directUsers || []);
       setDescendantUsers(body.descendantUsers || []);
     } catch (error) {
       Message.error(error instanceof Error ? error.message : "加载部门失败");
@@ -165,18 +164,13 @@ export function DepartmentsConsole({ companies }: { companies: CompanyOption[] }
 
   return (
     <>
-      <div className="page-head">
-        <div>
-          <h1 className="page-title">部门树</h1>
-        </div>
-      </div>
       <div className="work-surface">
-        <div className="toolbar">
+        <div className="toolbar departments-toolbar">
           <Select
+            className="toolbar-company-select"
             placeholder="公司主体"
             value={companyId}
             onChange={setCompanyId}
-            style={{ width: 220 }}
             options={companies.map((company) => ({ label: company.name, value: company.id }))}
           />
         </div>
@@ -227,7 +221,7 @@ export function DepartmentsConsole({ companies }: { companies: CompanyOption[] }
         footer={null}
         unmountOnExit
         onCancel={closeUserDetail}
-        style={{ width: "min(920px, 92vw)" }}
+        style={{ width: "min(920px, calc(100vw - 24px))" }}
       >
         <div className="user-detail-modal">
           <Descriptions title="当前信息" data={userDescriptions} column={2} border />

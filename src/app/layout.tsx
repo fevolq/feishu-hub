@@ -3,7 +3,7 @@ import "@arco-design/web-react/dist/css/arco.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "飞书组织后台",
+  title: "飞书组织",
   description: "单机版飞书组织数据同步后台"
 };
 

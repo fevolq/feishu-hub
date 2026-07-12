@@ -32,7 +32,7 @@ export const buildDepartmentTree = (departments: DepartmentListItem[]) => {
   return roots;
 };
 
-export const getDepartmentAndDescendantIds = (
+export const getDescendantDepartmentIds = (
   departments: DepartmentListItem[],
   departmentId: string
 ) => {
@@ -46,7 +46,7 @@ export const getDepartmentAndDescendantIds = (
     ]);
   }
 
-  const ids = [departmentId];
+  const ids: string[] = [];
   const queue = [...(childrenByParent.get(departmentId) || [])];
 
   while (queue.length) {

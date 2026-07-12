@@ -246,10 +246,7 @@ export function CompaniesConsole({ initialCompanies }: { initialCompanies: Compa
 
   return (
     <>
-      <div className="page-head">
-        <div>
-          <h1 className="page-title">公司主体</h1>
-        </div>
+      <div className="page-actions">
         <Button type="primary" icon={<IconPlus />} onClick={openCreate}>
           新增
         </Button>

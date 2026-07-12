@@ -10,11 +10,6 @@ export default async function DashboardPage() {
 
   return (
     <DashboardPageFrame>
-      <div className="page-head">
-        <div>
-          <h1 className="page-title">概览</h1>
-        </div>
-      </div>
       {companies.length ? (
         <div className="company-overview-grid">
           {companies.map((company) => (
@@ -24,6 +19,10 @@ export default async function DashboardPage() {
                 <div className="company-overview-metric">
                   <span className="company-overview-metric-label">人员数量</span>
                   <strong className="company-overview-metric-value">{company.employeeCount}</strong>
+                </div>
+                <div className="company-overview-metric">
+                  <span className="company-overview-metric-label">历史总数量</span>
+                  <strong className="company-overview-metric-value">{company.historyCount}</strong>
                 </div>
                 <div className="company-overview-metric">
                   <span className="company-overview-metric-label">近 7 天入职人数</span>

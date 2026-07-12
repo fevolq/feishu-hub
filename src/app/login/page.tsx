@@ -10,7 +10,7 @@ export default async function LoginPage() {
   return (
     <main className="login-page">
       <section className="login-panel">
-        <h1 className="login-title">飞书组织后台</h1>
+        <h1 className="login-title">飞书组织</h1>
         <LoginForm />
       </section>
     </main>

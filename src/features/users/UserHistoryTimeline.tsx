@@ -9,6 +9,8 @@ export type HistoryEvent = {
   changedFields: string[];
   before: Record<string, unknown> | null;
   after: Record<string, unknown> | null;
+  beforeDisplay?: Record<string, unknown> | null;
+  afterDisplay?: Record<string, unknown> | null;
   occurredAt: string;
 };
 
@@ -99,12 +101,35 @@ const formatChangeValue = (field: string, value: unknown): string => {
   return String(value);
 };
 
+const renderChangeValueContent = (field: string, value: unknown) => {
+  if (field === "avatarUrl" && typeof value === "string" && value) {
+    return (
+      <img
+        className="history-avatar-image"
+        src={value}
+        alt="头像"
+        loading="lazy"
+        referrerPolicy="no-referrer"
+      />
+    );
+  }
+
+  return formatChangeValue(field, value);
+};
+
 const renderChangedValue = (item: HistoryEvent, field: string) => {
+  const before = item.beforeDisplay ?? item.before;
+  const after = item.afterDisplay ?? item.after;
+
   return (
     <div key={field} className="change-detail-row">
       <div className="change-field-name">{formatChangedField(field)}</div>
-      <div className="change-value change-value-before">{formatChangeValue(field, getSnapshotValue(item.before, field))}</div>
-      <div className="change-value change-value-after">{formatChangeValue(field, getSnapshotValue(item.after, field))}</div>
+      <div className="change-value change-value-before">
+        {renderChangeValueContent(field, getSnapshotValue(before, field))}
+      </div>
+      <div className="change-value change-value-after">
+        {renderChangeValueContent(field, getSnapshotValue(after, field))}
+      </div>
     </div>
   );
 };

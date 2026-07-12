@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildDepartmentTree,
-  getDepartmentAndDescendantIds
+  getDescendantDepartmentIds
 } from "@/server/org/departments";
 import type { DepartmentListItem } from "@/server/db/repositories/org";
 
@@ -49,7 +49,7 @@ describe("department hierarchy helpers", () => {
     ]);
   });
 
-  it("returns the selected department and all descendants for descendant employee queries", () => {
-    expect(getDepartmentAndDescendantIds(departments, "eng")).toEqual(["eng", "frontend"]);
+  it("returns only child departments for descendant employee queries", () => {
+    expect(getDescendantDepartmentIds(departments, "eng")).toEqual(["frontend"]);
   });
 });

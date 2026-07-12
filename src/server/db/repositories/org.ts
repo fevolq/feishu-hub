@@ -102,6 +102,58 @@ export const formatDepartmentDisplayName = (
   return status === "deleted" ? `${name}（已取消）` : name;
 };
 
+const getDepartmentDisplayNames = (companyId: number) => {
+  const rows = getDb()
+    .prepare(
+      `SELECT open_department_id, name, status
+       FROM departments
+       WHERE company_id = ?`
+    )
+    .all(companyId) as Array<{
+    open_department_id: string;
+    name: string;
+    status: "active" | "deleted";
+  }>;
+
+  return new Map(
+    rows.map((row) => [
+      row.open_department_id,
+      formatDepartmentDisplayName(row.name, row.status) || row.open_department_id
+    ])
+  );
+};
+
+const formatHistoryDepartmentId = (value: unknown, departmentNames: Map<string, string>) => {
+  if (typeof value !== "string" || !value) {
+    return value;
+  }
+
+  return departmentNames.get(value) || `未知部门（${value}）`;
+};
+
+const formatHistoryDepartmentSnapshot = (
+  snapshot: Record<string, unknown> | null,
+  departmentNames: Map<string, string>
+) => {
+  if (!snapshot) {
+    return null;
+  }
+
+  const formatted = { ...snapshot };
+  formatted.primaryDepartmentId = formatHistoryDepartmentId(
+    snapshot.primaryDepartmentId,
+    departmentNames
+  );
+
+  if (Array.isArray(snapshot.departmentIds)) {
+    formatted.departmentIds = snapshot.departmentIds.map((departmentId) =>
+      formatHistoryDepartmentId(departmentId, departmentNames)
+    );
+  }
+
+  return formatted;
+};
+
 export const rowToUser = (row: CurrentUserRow): User => ({
   openId: row.open_id,
   unionId: row.union_id,
@@ -176,7 +228,7 @@ export const listUsers = (companyId: number, filters: UserListFilters = {}): Use
        LEFT JOIN users_current leader
          ON leader.company_id = u.company_id AND leader.open_id = u.leader_open_id
        WHERE ${clauses.join(" AND ")}
-       ORDER BY u.status ASC, u.name ASC`
+       ORDER BY u.updated_at DESC, u.id DESC`
     )
     .all(...params) as CurrentUserRow[];
 
@@ -240,6 +292,8 @@ export const listDepartments = (companyId: number, filters: DepartmentListFilter
 };
 
 export const listUserHistory = (companyId: number, openId: string) => {
+  const departmentNames = getDepartmentDisplayNames(companyId);
+
   return getDb()
     .prepare(
       `SELECT id, type, changed_fields_json, before_json, after_json, occurred_at
@@ -267,6 +321,8 @@ export const listUserHistory = (companyId: number, openId: string) => {
         changedFields: expandHistoryChangedFields(changedFields, before, after),
         before,
         after,
+        beforeDisplay: formatHistoryDepartmentSnapshot(before, departmentNames),
+        afterDisplay: formatHistoryDepartmentSnapshot(after, departmentNames),
         occurredAt: item.occurred_at
       };
     });
