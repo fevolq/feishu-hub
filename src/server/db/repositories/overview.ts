@@ -1,4 +1,15 @@
 import { getDb } from "../connection";
+import {
+  rowToUserListItem,
+  type CurrentUserRow,
+  type UserListItem
+} from "./org";
+
+export type RecentActivityType = "joined" | "resigned";
+
+export type RecentCompanyUser = UserListItem & {
+  activityAt: string;
+};
 
 export type CompanyOverviewCard = {
   id: number;
@@ -64,5 +75,41 @@ export const listCompanyOverviewCards = (since: string): CompanyOverviewCard[] =
     historyCount: Number(row.history_count || 0),
     recentJoinedCount: Number(row.recent_joined_count || 0),
     recentResignedCount: Number(row.recent_resigned_count || 0)
+  }));
+};
+
+export const listRecentCompanyUsers = (
+  companyId: number,
+  type: RecentActivityType,
+  since: string
+): RecentCompanyUser[] => {
+  const eventTypes = type === "joined" ? ["created", "restored"] : ["resigned"];
+  const placeholders = eventTypes.map(() => "?").join(", ");
+  const rows = getDb()
+    .prepare(
+      `WITH recent_users AS (
+         SELECT user_open_id, MAX(occurred_at) AS activity_at
+         FROM user_change_events
+         WHERE company_id = ?
+           AND occurred_at >= ?
+           AND type IN (${placeholders})
+         GROUP BY user_open_id
+       )
+       SELECT u.*, d.name AS department_name, d.status AS department_status,
+              leader.name AS leader_name, recent_users.activity_at
+       FROM recent_users
+       INNER JOIN users_current u
+         ON u.company_id = ? AND u.open_id = recent_users.user_open_id
+       LEFT JOIN departments d
+         ON d.company_id = u.company_id AND d.open_department_id = u.primary_department_id
+       LEFT JOIN users_current leader
+         ON leader.company_id = u.company_id AND leader.open_id = u.leader_open_id
+       ORDER BY recent_users.activity_at DESC, u.id DESC`
+    )
+    .all(companyId, since, ...eventTypes, companyId) as Array<CurrentUserRow & { activity_at: string }>;
+
+  return rows.map((row) => ({
+    ...rowToUserListItem(row),
+    activityAt: row.activity_at
   }));
 };

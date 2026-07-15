@@ -204,6 +204,31 @@ a {
   background: var(--surface);
 }
 
+.company-overview-metric-action {
+  width: 100%;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 160ms ease, box-shadow 160ms ease;
+}
+
+.company-overview-metric-action:hover {
+  background: #f5f9ff;
+}
+
+.company-overview-metric-action:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 0;
+  box-shadow: inset 0 0 0 2px var(--brand);
+}
+
+.company-overview-metric-action .company-overview-metric-value {
+  color: var(--brand);
+}
+
 .company-overview-metric-label {
   display: block;
   color: var(--muted);
@@ -409,6 +434,32 @@ a {
 
 .change-value-after {
   color: #1d2433;
+}
+
+.recent-user-name-button {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--brand);
+  font: inherit;
+  font-weight: 500;
+  line-height: 1.5;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.recent-user-name-button:hover {
+  text-decoration: underline;
+}
+
+.recent-user-name-button:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 .history-avatar-image {

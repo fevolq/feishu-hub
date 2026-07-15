@@ -3,52 +3,33 @@
 import {
   Avatar,
   Button,
-  Descriptions,
   Message,
-  Modal,
   Select,
-  Spin,
   Table,
   Tabs,
-  Tag,
   Tree
 } from "@arco-design/web-react";
 import { useCallback, useEffect, useState } from "react";
-import { UserHistoryTimeline, type HistoryEvent } from "@/features/users/UserHistoryTimeline";
+import {
+  UserDetailModal,
+  type UserDetailItem
+} from "@/features/users/UserDetailModal";
 import { readApiJson } from "@/lib/api-client";
-import { formatDateTime } from "@/lib/datetime";
 
 type CompanyOption = { id: number; name: string };
 type TreeNode = { key: string; title: string; children?: TreeNode[] };
 type EmployeeTab = "direct" | "descendant";
-type UserItem = {
-  id: number;
-  openId: string;
-  name: string;
-  avatarUrl: string | null;
-  email: string | null;
-  jobTitle: string | null;
-  departmentName: string | null;
-  leaderName: string | null;
-  status: "active" | "resigned";
-  lastSeenAt: string;
-  updatedAt: string;
-  resignedAt: string | null;
-};
-
 const getAvatarText = (name: string) => name.trim().slice(0, 1).toUpperCase() || "?";
 
 export function DepartmentsConsole({ companies }: { companies: CompanyOption[] }) {
   const [companyId, setCompanyId] = useState<number | undefined>(companies[0]?.id);
   const [tree, setTree] = useState<TreeNode[]>([]);
-  const [directUsers, setDirectUsers] = useState<UserItem[]>([]);
-  const [descendantUsers, setDescendantUsers] = useState<UserItem[]>([]);
-  const [history, setHistory] = useState<HistoryEvent[]>([]);
-  const [selectedUser, setSelectedUser] = useState<UserItem | null>(null);
+  const [directUsers, setDirectUsers] = useState<UserDetailItem[]>([]);
+  const [descendantUsers, setDescendantUsers] = useState<UserDetailItem[]>([]);
+  const [selectedUser, setSelectedUser] = useState<UserDetailItem | null>(null);
   const [selectedDepartmentId, setSelectedDepartmentId] = useState<string | undefined>();
   const [activeTab, setActiveTab] = useState<EmployeeTab>("direct");
   const [loading, setLoading] = useState(false);
-  const [historyLoading, setHistoryLoading] = useState(false);
 
   const loadTree = useCallback(async (departmentId?: string) => {
     if (!companyId) return;
@@ -58,8 +39,8 @@ export function DepartmentsConsole({ companies }: { companies: CompanyOption[] }
       const response = await fetch(`/api/companies/${companyId}/departments${params}`);
       const body = await readApiJson<{
         tree?: TreeNode[];
-        directUsers?: UserItem[];
-        descendantUsers?: UserItem[];
+        directUsers?: UserDetailItem[];
+        descendantUsers?: UserDetailItem[];
       }>(response, "加载部门失败");
       setTree(body.tree || []);
       setDirectUsers(body.directUsers || []);
@@ -70,28 +51,6 @@ export function DepartmentsConsole({ companies }: { companies: CompanyOption[] }
       setLoading(false);
     }
   }, [companyId]);
-
-  const openUserDetail = async (user: UserItem) => {
-    if (!companyId) return;
-    setSelectedUser(user);
-    setHistory([]);
-    setHistoryLoading(true);
-    try {
-      const response = await fetch(`/api/users/${encodeURIComponent(user.openId)}/history?companyId=${companyId}`);
-      const body = await readApiJson<{ events?: HistoryEvent[] }>(response, "加载历史失败");
-      setHistory(body.events || []);
-    } catch (error) {
-      Message.error(error instanceof Error ? error.message : "加载历史失败");
-    } finally {
-      setHistoryLoading(false);
-    }
-  };
-
-  const closeUserDetail = () => {
-    setSelectedUser(null);
-    setHistory([]);
-    setHistoryLoading(false);
-  };
 
   useEffect(() => {
     setSelectedDepartmentId(undefined);
@@ -104,7 +63,7 @@ export function DepartmentsConsole({ companies }: { companies: CompanyOption[] }
       title: "头像",
       dataIndex: "avatarUrl",
       width: 72,
-      render: (_: string | null, record: UserItem) => (
+      render: (_: string | null, record: UserDetailItem) => (
         <Avatar size={28} className="user-avatar">
           {record.avatarUrl ? (
             <img src={record.avatarUrl} alt="" loading="lazy" referrerPolicy="no-referrer" />
@@ -121,48 +80,13 @@ export function DepartmentsConsole({ companies }: { companies: CompanyOption[] }
     {
       title: "操作",
       width: 90,
-      render: (_: unknown, record: UserItem) => (
-        <Button size="small" type="text" onClick={() => openUserDetail(record)}>
+      render: (_: unknown, record: UserDetailItem) => (
+        <Button size="small" type="text" onClick={() => setSelectedUser(record)}>
           详情
         </Button>
       )
     }
   ];
-
-  const userDescriptions = selectedUser
-    ? [
-        {
-          label: "用户",
-          value: (
-            <div className="user-name-cell">
-              <Avatar size={28} className="user-avatar">
-                {selectedUser.avatarUrl ? (
-                  <img src={selectedUser.avatarUrl} alt="" loading="lazy" referrerPolicy="no-referrer" />
-                ) : (
-                  getAvatarText(selectedUser.name)
-                )}
-              </Avatar>
-              <span className="user-name-text">{selectedUser.name}</span>
-            </div>
-          )
-        },
-        {
-          label: "状态",
-          value: (
-            <Tag color={selectedUser.status === "active" ? "green" : "gray"}>
-              {selectedUser.status === "active" ? "在职" : "离职"}
-            </Tag>
-          )
-        },
-        { label: "岗位", value: selectedUser.jobTitle || "-" },
-        { label: "部门", value: selectedUser.departmentName || "-" },
-        { label: "上级", value: selectedUser.leaderName || "-" },
-        { label: "邮箱", value: selectedUser.email || "-" },
-        { label: "信息更新", value: selectedUser.updatedAt ? formatDateTime(selectedUser.updatedAt) : "-" },
-        { label: "最近出现", value: selectedUser.lastSeenAt ? formatDateTime(selectedUser.lastSeenAt) : "-" },
-        { label: "员工 ID", value: selectedUser.openId, span: 2 }
-      ]
-    : [];
 
   return (
     <>
@@ -217,28 +141,11 @@ export function DepartmentsConsole({ companies }: { companies: CompanyOption[] }
           </div>
         </div>
       </div>
-      <Modal
-        title={selectedUser ? `${selectedUser.name} 的用户信息` : "用户信息"}
-        visible={Boolean(selectedUser)}
-        footer={null}
-        unmountOnExit
-        onCancel={closeUserDetail}
-        style={{ width: "min(920px, calc(100vw - 24px))" }}
-      >
-        <div className="user-detail-modal">
-          <Descriptions title="当前信息" data={userDescriptions} column={2} border />
-          <section className="user-history-section">
-            <div className="detail-section-title">变更历史</div>
-            {historyLoading ? (
-              <div className="history-loading">
-                <Spin />
-              </div>
-            ) : (
-              <UserHistoryTimeline events={history} />
-            )}
-          </section>
-        </div>
-      </Modal>
+      <UserDetailModal
+        companyId={companyId}
+        user={selectedUser}
+        onClose={() => setSelectedUser(null)}
+      />
     </>
   );
 }

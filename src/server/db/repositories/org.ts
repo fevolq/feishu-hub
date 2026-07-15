@@ -171,6 +171,24 @@ export const rowToUser = (row: CurrentUserRow): User => ({
   extra: parseJson<Record<string, unknown>>(row.extra_json, {})
 });
 
+export const rowToUserListItem = (row: CurrentUserRow): UserListItem => ({
+  id: row.id,
+  openId: row.open_id,
+  name: row.name,
+  avatarUrl: row.avatar_url,
+  email: row.email,
+  jobTitle: row.job_title,
+  leaderOpenId: row.leader_open_id,
+  leaderName: row.leader_name || null,
+  primaryDepartmentId: row.primary_department_id,
+  departmentName: formatDepartmentDisplayName(row.department_name, row.department_status),
+  departmentStatus: row.department_status || null,
+  status: row.status,
+  lastSeenAt: row.last_seen_at,
+  updatedAt: row.updated_at,
+  resignedAt: row.resigned_at
+});
+
 const rowToStoredUser = (row: CurrentUserRow): StoredUser => ({
   user: rowToUser(row),
   firstSeenAt: row.first_seen_at,
@@ -235,23 +253,7 @@ export const listUsers = (companyId: number, filters: UserListFilters = {}): Use
     )
     .all(...params) as CurrentUserRow[];
 
-  return rows.map((row) => ({
-    id: row.id,
-    openId: row.open_id,
-    name: row.name,
-    avatarUrl: row.avatar_url,
-    email: row.email,
-    jobTitle: row.job_title,
-    leaderOpenId: row.leader_open_id,
-    leaderName: row.leader_name || null,
-    primaryDepartmentId: row.primary_department_id,
-    departmentName: formatDepartmentDisplayName(row.department_name, row.department_status),
-    departmentStatus: row.department_status || null,
-    status: row.status,
-    lastSeenAt: row.last_seen_at,
-    updatedAt: row.updated_at,
-    resignedAt: row.resigned_at
-  }));
+  return rows.map(rowToUserListItem);
 };
 
 export const listDepartments = (companyId: number, filters: DepartmentListFilters = {}): DepartmentListItem[] => {

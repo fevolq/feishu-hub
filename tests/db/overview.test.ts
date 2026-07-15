@@ -51,5 +51,22 @@ describe("company overview", () => {
         recentResignedCount: 1
       }
     ]);
+
+    expect(
+      repository
+        .listRecentCompanyUsers(companyId, "joined", "2026-01-08")
+        .map(({ openId, status, activityAt }) => ({ openId, status, activityAt }))
+    ).toEqual([
+      { openId: "active-b", status: "active", activityAt: "2026-01-10" },
+      { openId: "active-a", status: "active", activityAt: "2026-01-09" }
+    ]);
+
+    expect(
+      repository
+        .listRecentCompanyUsers(companyId, "resigned", "2026-01-08")
+        .map(({ openId, status, activityAt }) => ({ openId, status, activityAt }))
+    ).toEqual([
+      { openId: "resigned", status: "resigned", activityAt: "2026-01-10" }
+    ]);
   });
 });
