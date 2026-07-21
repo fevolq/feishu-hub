@@ -28,4 +28,21 @@ describe("database schema", () => {
     expect(columns).not.toContain("last_sync_at");
     expect(columns).not.toContain("next_sync_at");
   });
+
+  it("creates the append-only raw sync snapshot table", async () => {
+    const { getDb } = await loadDatabase();
+    const columns = getDb()
+      .prepare("PRAGMA table_info(sync_raw_snapshots)")
+      .all()
+      .map((row) => (row as { name: string }).name);
+
+    expect(columns).toEqual([
+      "id",
+      "company_id",
+      "sync_run_id",
+      "payload_json",
+      "captured_at",
+      "created_at"
+    ]);
+  });
 });

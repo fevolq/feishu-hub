@@ -1,7 +1,7 @@
 import { appConfig } from "../config";
 import type { FeishuCredentials, Department, User } from "../org/types";
 
-type FeishuResponse<T> = {
+export type FeishuResponse<T> = {
   code: number;
   msg?: string;
   data?: T;
@@ -34,6 +34,23 @@ type RawUser = {
   [key: string]: unknown;
 };
 
+export type FeishuRawApiPage = {
+  requestUrl: string;
+  response: FeishuResponse<unknown>;
+};
+
+export type FeishuRawOrganizationSnapshot = {
+  schemaVersion: 1;
+  departmentRequests: Array<{
+    parentOpenDepartmentId: string | null;
+    pages: FeishuRawApiPage[];
+  }>;
+  userRequests: Array<{
+    openDepartmentId: string;
+    pages: FeishuRawApiPage[];
+  }>;
+};
+
 const FEISHU_PAGE_SIZE = 50;
 
 const readFeishuResponse = async <T>(response: Response): Promise<FeishuResponse<T>> => {
@@ -42,6 +59,8 @@ const readFeishuResponse = async <T>(response: Response): Promise<FeishuResponse
 
 export class FeishuClient {
   private token: string | null = null;
+  private departmentRequests: FeishuRawOrganizationSnapshot["departmentRequests"] = [];
+  private userRequests: FeishuRawOrganizationSnapshot["userRequests"] = [];
 
   constructor(private readonly credentials: FeishuCredentials) {}
 
@@ -71,7 +90,11 @@ export class FeishuClient {
     return this.token;
   }
 
-  private async get<T>(path: string, params: Record<string, string | number | undefined>) {
+  private async get<T>(
+    path: string,
+    params: Record<string, string | number | undefined>,
+    onResponse?: (page: FeishuRawApiPage) => void
+  ) {
     const token = await this.auth();
     const url = new URL(`${appConfig.feishuApiBaseUrl}${path}`);
     for (const [key, value] of Object.entries(params)) {
@@ -91,22 +114,31 @@ export class FeishuClient {
     if (body.code !== 0) {
       throw new Error(`飞书接口返回错误: ${body.msg || body.code}`);
     }
+    onResponse?.({
+      requestUrl: url.toString(),
+      response: body as FeishuResponse<unknown>
+    });
     return body.data as T;
   }
 
   private async getAllPages<T>(
     path: string,
-    params: Record<string, string | number | undefined>
+    params: Record<string, string | number | undefined>,
+    onPage?: (page: FeishuRawApiPage) => void
   ): Promise<T[]> {
     const items: T[] = [];
     let pageToken: string | undefined;
 
     do {
-      const data = await this.get<PagedData<T>>(path, {
-        ...params,
-        page_size: FEISHU_PAGE_SIZE,
-        page_token: pageToken
-      });
+      const data = await this.get<PagedData<T>>(
+        path,
+        {
+          ...params,
+          page_size: FEISHU_PAGE_SIZE,
+          page_token: pageToken
+        },
+        onPage
+      );
       items.push(...(data.items || []));
       pageToken = data.has_more ? data.page_token : undefined;
     } while (pageToken);
@@ -117,13 +149,23 @@ export class FeishuClient {
   async fetchDepartments(): Promise<Department[]> {
     const departments: Department[] = [];
     const seen = new Set<string>();
+    this.departmentRequests = [];
 
     const visit = async (parentOpenDepartmentId: string | null) => {
       const parentParam = parentOpenDepartmentId || "0";
-      const items = await this.getAllPages<RawDepartment>("/contact/v3/departments", {
-        parent_department_id: parentParam,
-        department_id_type: "open_department_id"
-      });
+      const requestSnapshot = {
+        parentOpenDepartmentId,
+        pages: [] as FeishuRawApiPage[]
+      };
+      this.departmentRequests.push(requestSnapshot);
+      const items = await this.getAllPages<RawDepartment>(
+        "/contact/v3/departments",
+        {
+          parent_department_id: parentParam,
+          department_id_type: "open_department_id"
+        },
+        (page) => requestSnapshot.pages.push(page)
+      );
 
       for (const item of items) {
         if (!item.open_department_id || seen.has(item.open_department_id)) {
@@ -147,13 +189,23 @@ export class FeishuClient {
 
   async fetchUsers(departments: Department[]): Promise<User[]> {
     const users = new Map<string, User>();
+    this.userRequests = [];
 
     for (const department of departments) {
-      const items = await this.getAllPages<RawUser>("/contact/v3/users", {
-        department_id: department.openDepartmentId,
-        department_id_type: "open_department_id",
-        user_id_type: "open_id"
-      });
+      const requestSnapshot = {
+        openDepartmentId: department.openDepartmentId,
+        pages: [] as FeishuRawApiPage[]
+      };
+      this.userRequests.push(requestSnapshot);
+      const items = await this.getAllPages<RawUser>(
+        "/contact/v3/users",
+        {
+          department_id: department.openDepartmentId,
+          department_id_type: "open_department_id",
+          user_id_type: "open_id"
+        },
+        (page) => requestSnapshot.pages.push(page)
+      );
 
       for (const item of items) {
         if (!item.open_id) {
@@ -198,5 +250,19 @@ export class FeishuClient {
     }
 
     return [...users.values()];
+  }
+
+  getRawOrganizationSnapshot(): FeishuRawOrganizationSnapshot {
+    return {
+      schemaVersion: 1,
+      departmentRequests: this.departmentRequests.map((request) => ({
+        ...request,
+        pages: [...request.pages]
+      })),
+      userRequests: this.userRequests.map((request) => ({
+        ...request,
+        pages: [...request.pages]
+      }))
+    };
   }
 }

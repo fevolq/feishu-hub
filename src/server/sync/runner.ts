@@ -4,6 +4,7 @@ import {
   startSyncRun,
   type SyncTriggerType
 } from "../db/repositories/sync-runs";
+import { createSyncRawSnapshot } from "../db/repositories/sync-raw-snapshots";
 import { FeishuClient } from "../feishu/client";
 import { persistOrgSnapshot } from "./persist";
 
@@ -26,6 +27,12 @@ export const syncCompany = async (companyId: number, triggerType: SyncTriggerTyp
     });
     const departments = await client.fetchDepartments();
     const users = await client.fetchUsers(departments);
+    createSyncRawSnapshot({
+      companyId,
+      syncRunId,
+      payload: client.getRawOrganizationSnapshot(),
+      capturedAt: new Date().toISOString()
+    });
     const stats = persistOrgSnapshot({
       companyId,
       syncRunId,

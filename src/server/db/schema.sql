@@ -49,6 +49,20 @@ CREATE TABLE IF NOT EXISTS sync_runs (
 
 CREATE INDEX IF NOT EXISTS idx_sync_runs_company ON sync_runs(company_id, started_at DESC);
 
+CREATE TABLE IF NOT EXISTS sync_raw_snapshots (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  company_id INTEGER NOT NULL,
+  sync_run_id INTEGER NOT NULL UNIQUE,
+  payload_json TEXT NOT NULL,
+  captured_at TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY(company_id) REFERENCES companies(id) ON DELETE CASCADE,
+  FOREIGN KEY(sync_run_id) REFERENCES sync_runs(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_sync_raw_snapshots_company_time
+  ON sync_raw_snapshots(company_id, captured_at DESC);
+
 CREATE TABLE IF NOT EXISTS departments (
   company_id INTEGER NOT NULL,
   open_department_id TEXT NOT NULL,
