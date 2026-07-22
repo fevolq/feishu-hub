@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { appConfig } from "@/server/config";
+import { appConfig } from "@/shared/server/config";
 
 export async function POST() {
   const response = NextResponse.json({ ok: true });

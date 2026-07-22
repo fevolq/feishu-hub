@@ -1,0 +1,182 @@
+.layout {
+  min-height: 100vh;
+}
+
+.layout > :global(.arco-layout) {
+  min-width: 0;
+}
+
+.sider {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100vh;
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+}
+
+.brand {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  font-weight: 700;
+  border-bottom: 1px solid var(--border);
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 40px;
+  padding: 0 12px;
+  color: #4b5565;
+  border-radius: 4px;
+  touch-action: manipulation;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.navLink:hover {
+  background: #f1f4f9;
+  color: var(--brand);
+}
+
+.navLinkActive {
+  background: #eef4ff;
+  color: var(--brand);
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.routeProgress {
+  position: relative;
+  height: 2px;
+  overflow: hidden;
+  background: #e8f3ff;
+}
+
+.routeProgress::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 36%;
+  background: var(--brand);
+  animation: route-progress-slide 850ms ease-in-out infinite;
+}
+
+@keyframes route-progress-slide {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(280%);
+  }
+}
+
+.content {
+  min-width: 0;
+  padding: 24px;
+}
+
+@media (max-width: 860px) {
+  .content {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 720px) {
+  .layout {
+    display: block;
+    padding-bottom: calc(66px + env(safe-area-inset-bottom));
+  }
+
+  .sider {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 100;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: calc(66px + env(safe-area-inset-bottom));
+    overflow: hidden;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-right: 0;
+    box-shadow: 0 -8px 24px rgba(29, 36, 51, 0.08);
+  }
+
+  .brand {
+    display: none;
+  }
+
+  .nav {
+    height: 66px;
+    flex-direction: row;
+    gap: 4px;
+    padding: 6px 8px;
+  }
+
+  .navLink {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 54px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    padding: 4px 2px;
+    font-size: 11px;
+    line-height: 1.2;
+  }
+
+  .navLink svg {
+    font-size: 18px;
+  }
+
+  .header {
+    height: 52px;
+    padding: 0 16px;
+  }
+
+  .header > span {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .content {
+    width: 100%;
+    padding: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navLink {
+    transition: none;
+  }
+
+  .routeProgress::before {
+    width: 100%;
+    animation: none;
+  }
+}

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireApiAuth } from "@/server/auth/guards";
-import { getCompany } from "@/server/db/repositories/companies";
-import { listUsers } from "@/server/db/repositories/org";
-import { parsePositiveIntegerParam } from "@/server/http/route-params";
+import { requireApiAuth } from "@/modules/auth/server/guards";
+import { getCompany } from "@/modules/companies/server/repository";
+import { listUsersPage } from "@/modules/organization/server/users-repository";
+import { parsePaginationParams } from "@/shared/http/pagination";
+import { parsePositiveIntegerParam } from "@/shared/http/route-params";
 
 const normalizeStatusFilter = (value: string | null) => {
   if (value === "all" || value === "active" || value === "resigned") return value;
@@ -23,12 +24,21 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
   }
 
   const search = request.nextUrl.searchParams;
+  const pagination = parsePaginationParams(search);
+  if (!pagination) {
+    return NextResponse.json({ error: "分页参数不正确" }, { status: 400 });
+  }
   const status = normalizeStatusFilter(search.get("status"));
-  const users = listUsers(companyId, {
-    status,
-    departmentId: search.get("departmentId") || undefined,
-    query: search.get("q") || undefined
-  });
+  const result = listUsersPage(
+    companyId,
+    {
+      status,
+      departmentId: search.get("departmentId") || undefined,
+      query: search.get("q") || undefined
+    },
+    pagination
+  );
 
-  return NextResponse.json({ users });
+  const { items: users, ...paginationMeta } = result;
+  return NextResponse.json({ users, pagination: paginationMeta });
 }

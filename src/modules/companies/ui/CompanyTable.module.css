@@ -1,0 +1,37 @@
+.dragHandle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: var(--muted);
+  border-radius: 4px;
+  cursor: grab;
+}
+
+.dragHandle:hover {
+  color: var(--brand);
+  background: #eef4ff;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.rowDragging {
+  opacity: 0.55;
+}
+
+.syncSummary {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.syncError {
+  display: block;
+  max-width: 300px;
+  color: #c9372c;
+  font-size: 12px;
+  line-height: 1.5;
+  word-break: break-word;
+}

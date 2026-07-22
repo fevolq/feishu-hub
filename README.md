@@ -4,6 +4,8 @@
 
 项目基于 Next.js、React、TypeScript 和 SQLite 实现，后台页面使用统一访问密码登录。SQLite 数据默认保存在本地 `data` 目录，适合单机部署和轻量运维。
 
+代码按 `auth`、`companies`、`schedules`、`organization`、`overview` 和 `sync` 业务模块组织；完整依赖规则和目录说明见 [项目架构](docs/architecture.md)。
+
 ## 本地启动
 
 安装依赖：
@@ -34,6 +36,14 @@ http://localhost:3000
 
 ```bash
 npm run worker
+```
+
+运行自动化检查：
+
+```bash
+npx tsc --noEmit --incremental false
+npm test
+npm run build
 ```
 
 ## 环境变量

@@ -1,19 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
-import { requireApiAuth } from "@/server/auth/guards";
-import { getCompany } from "@/server/db/repositories/companies";
-import {
-  createCompanySyncSchedule,
-  listCompanySyncSchedules
-} from "@/server/db/repositories/sync-schedules";
-import { parsePositiveIntegerParam } from "@/server/http/route-params";
-import { getNextCronRunAt, validateCrontabExpression } from "@/server/sync/cron";
-
-const scheduleSchema = z.object({
-  name: z.string().trim().max(80).optional().nullable(),
-  cronExpression: z.string().trim().min(1),
-  enabled: z.boolean().optional()
-});
+import { requireApiAuth } from "@/modules/auth/server/guards";
+import { getCompany } from "@/modules/companies/server/repository";
+import { listCompanySyncSchedules } from "@/modules/schedules/server/repository";
+import { parsePositiveIntegerParam } from "@/shared/http/route-params";
+import { createScheduleSchema } from "@/modules/schedules/server/schemas";
+import { createSchedule } from "@/modules/schedules/server/service";
 
 export async function GET(_request: NextRequest, context: { params: Promise<{ id: string }> }) {
   const auth = await requireApiAuth();
@@ -44,20 +35,13 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
     return NextResponse.json({ error: "公司不存在" }, { status: 404 });
   }
 
-  const parsed = scheduleSchema.safeParse(await request.json().catch(() => null));
+  const parsed = createScheduleSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json({ error: "参数不正确", details: parsed.error.flatten() }, { status: 400 });
   }
 
   try {
-    const cronExpression = validateCrontabExpression(parsed.data.cronExpression);
-    const enabled = parsed.data.enabled ?? true;
-    const schedule = createCompanySyncSchedule(companyId, {
-      name: parsed.data.name,
-      cronExpression,
-      enabled,
-      nextRunAt: enabled ? getNextCronRunAt(cronExpression) : null
-    });
+    const schedule = createSchedule(companyId, parsed.data);
     return NextResponse.json({ schedule }, { status: 201 });
   } catch (error) {
     return NextResponse.json(

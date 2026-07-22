@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireApiAuth } from "@/server/auth/guards";
-import { getCompany } from "@/server/db/repositories/companies";
-import { listUserHistory } from "@/server/db/repositories/org";
-import { parsePositiveIntegerParam } from "@/server/http/route-params";
+import { requireApiAuth } from "@/modules/auth/server/guards";
+import { getCompany } from "@/modules/companies/server/repository";
+import { listUserHistoryPage } from "@/modules/organization/server/user-history-repository";
+import { COMPACT_PAGE_SIZE } from "@/shared/contracts/pagination";
+import { parsePaginationParams } from "@/shared/http/pagination";
+import { parsePositiveIntegerParam } from "@/shared/http/route-params";
 
 export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   const auth = await requireApiAuth();
@@ -17,5 +19,12 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
     return NextResponse.json({ error: "公司不存在" }, { status: 404 });
   }
 
-  return NextResponse.json({ events: listUserHistory(companyId, decodeURIComponent(id)) });
+  const pagination = parsePaginationParams(request.nextUrl.searchParams, COMPACT_PAGE_SIZE);
+  if (!pagination) {
+    return NextResponse.json({ error: "分页参数不正确" }, { status: 400 });
+  }
+
+  const result = listUserHistoryPage(companyId, decodeURIComponent(id), pagination);
+  const { items: events, ...paginationMeta } = result;
+  return NextResponse.json({ events, pagination: paginationMeta });
 }

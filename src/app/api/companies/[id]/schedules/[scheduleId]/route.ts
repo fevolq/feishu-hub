@@ -1,20 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
-import { requireApiAuth } from "@/server/auth/guards";
-import { getCompany } from "@/server/db/repositories/companies";
+import { requireApiAuth } from "@/modules/auth/server/guards";
+import { getCompany } from "@/modules/companies/server/repository";
 import {
   deleteCompanySyncSchedule,
-  getCompanySyncSchedule,
-  updateCompanySyncSchedule
-} from "@/server/db/repositories/sync-schedules";
-import { parsePositiveIntegerParam } from "@/server/http/route-params";
-import { getNextCronRunAt, validateCrontabExpression } from "@/server/sync/cron";
-
-const scheduleUpdateSchema = z.object({
-  name: z.string().trim().max(80).optional().nullable(),
-  cronExpression: z.string().trim().min(1).optional(),
-  enabled: z.boolean().optional()
-});
+  getCompanySyncSchedule
+} from "@/modules/schedules/server/repository";
+import { parsePositiveIntegerParam } from "@/shared/http/route-params";
+import { updateScheduleSchema } from "@/modules/schedules/server/schemas";
+import { updateSchedule } from "@/modules/schedules/server/service";
 
 type RouteContext = {
   params: Promise<{ id: string; scheduleId: string }>;
@@ -45,30 +38,13 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     return NextResponse.json({ error: "定时任务不存在" }, { status: 404 });
   }
 
-  const parsed = scheduleUpdateSchema.safeParse(await request.json().catch(() => null));
+  const parsed = updateScheduleSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json({ error: "参数不正确", details: parsed.error.flatten() }, { status: 400 });
   }
 
   try {
-    const cronExpression =
-      parsed.data.cronExpression === undefined
-        ? current.cronExpression
-        : validateCrontabExpression(parsed.data.cronExpression);
-    const enabled = parsed.data.enabled ?? current.enabled;
-    const shouldRecalculateNextRun =
-      enabled && (parsed.data.cronExpression !== undefined || parsed.data.enabled === true);
-    const nextRunAt = enabled
-      ? shouldRecalculateNextRun
-        ? getNextCronRunAt(cronExpression)
-        : current.nextRunAt
-      : null;
-    const schedule = updateCompanySyncSchedule(companyId, scheduleId, {
-      ...parsed.data,
-      cronExpression,
-      enabled,
-      nextRunAt
-    });
+    const schedule = updateSchedule(companyId, scheduleId, current, parsed.data);
     return NextResponse.json({ schedule });
   } catch (error) {
     return NextResponse.json(

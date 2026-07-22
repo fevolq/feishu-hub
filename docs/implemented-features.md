@@ -14,19 +14,19 @@
 
 ## 当前代码架构
 
-本版本已按项目主线重构目录边界，保留当前业务能力，不再保留旧数据库兼容迁移逻辑。
+当前代码采用按业务功能组织的模块化单体结构，保留现有业务能力和 HTTP 契约，不保留旧的层级式兼容目录。
 
-- `src/app`：Next.js App Router 页面入口和 API 路由，只负责路由、鉴权和请求/响应拼装。
-- `src/features`：前端业务界面，按功能分为 `companies`、`departments`、`users`、`shell`。
-- `src/server/config.ts`：运行配置读取和默认值。
-- `src/server/auth`：访问密码登录、签名 Cookie 和页面/API 鉴权。
-- `src/server/db`：SQLite 连接、schema 和仓储。schema 是当前版本的干净结构，不承担旧表迁移。
-- `src/server/org`：组织域模型、员工差异计算、每日快照、部门树工具。
-- `src/server/feishu`：飞书 Open API 客户端和字段归一化。
-- `src/server/sync`：同步编排、持久化和 crontab 调度。
-- `src/lib`：前端 API 读取和时间格式化等轻量工具。
+- `src/app`：Next.js App Router 适配层。`(dashboard)` 路由组统一处理页面鉴权和应用壳，API 路由只负责 HTTP 输入输出。
+- `src/modules/auth`：密码登录、签名 Cookie、鉴权和登录/退出界面。
+- `src/modules/companies`：公司公开契约、服务端仓储、编辑、排序和手动同步入口。
+- `src/modules/schedules`：crontab 领域规则、计划仓储、应用服务和管理界面。
+- `src/modules/organization`：组织领域模型、差异计算、每日快照、部门树、用户/部门/历史仓储和界面。
+- `src/modules/overview`：公司概览和近期入离职查询与界面。
+- `src/modules/sync`：飞书传输、组织读取、原始响应采集、同步编排、事务持久化和 worker 调度。
+- `src/shared`：数据库连接与 schema、运行配置、日志、HTTP 参数、分页、时间和共享 UI。
+- `tests/modules`：按业务模块组织的单元与集成测试；`tests/contracts` 保存数据库和依赖边界契约。
 
-核心原则是：页面和 API 保持薄入口，业务规则放在 `server/org` 与 `server/sync`，数据库访问集中在 `server/db/repositories`。
+依赖方向固定为 `app/worker -> modules -> shared`。领域目录不依赖 Next.js、SQLite 或 UI 框架，共享层不反向依赖业务模块。详细说明见 `docs/architecture.md`。
 
 ## 导航与页面
 
@@ -76,7 +76,7 @@
 - 部门树的公司下拉顺序和默认公司
 - 其他基于公司列表的展示入口
 
-排序字段已持久化到 SQLite，老数据库会自动迁移补齐排序字段。
+排序字段持久化在 SQLite。当前应用不执行数据库结构迁移，部署时数据库必须符合当前 schema。
 
 ## 定时任务
 
@@ -259,7 +259,10 @@ crontab 格式为 5 段：分钟、小时、日、月、周，例如 `0 9 * * *`
 
 当前代码已通过：
 
-- 单元测试：10 个测试文件，21 个测试用例
+- 自动化测试：25 个测试文件，50 个测试用例
+- 独立 TypeScript 类型检查
+- 数据库表、字段、索引和外键结构契约检查
+- 模块依赖边界契约检查
 - Next.js 生产构建
 - 浏览器页面验证：
   - 公司主体页面可打开

@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
-import { requireApiAuth } from "@/server/auth/guards";
-import { updateCompanySortOrder } from "@/server/db/repositories/companies";
-
-const companyOrderSchema = z.object({
-  companyIds: z.array(z.coerce.number().int().positive()).min(1)
-});
+import { requireApiAuth } from "@/modules/auth/server/guards";
+import {
+  toPublicCompanies,
+  updateCompanySortOrder
+} from "@/modules/companies/server/repository";
+import { companyOrderSchema } from "@/modules/companies/server/schemas";
 
 export async function PATCH(request: NextRequest) {
   const auth = await requireApiAuth();
@@ -17,7 +16,9 @@ export async function PATCH(request: NextRequest) {
   }
 
   try {
-    return NextResponse.json({ companies: updateCompanySortOrder(parsed.data.companyIds) });
+    return NextResponse.json({
+      companies: toPublicCompanies(updateCompanySortOrder(parsed.data.companyIds))
+    });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "保存公司排序失败" },

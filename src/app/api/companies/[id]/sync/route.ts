@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireApiAuth } from "@/server/auth/guards";
-import { syncCompany } from "@/server/sync/runner";
-import { parsePositiveIntegerParam } from "@/server/http/route-params";
+import { requireApiAuth } from "@/modules/auth/server/guards";
+import { syncCompany } from "@/modules/sync/server/sync-company";
+import { parsePositiveIntegerParam } from "@/shared/http/route-params";
 
 export async function POST(_request: NextRequest, context: { params: Promise<{ id: string }> }) {
   const auth = await requireApiAuth();

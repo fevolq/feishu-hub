@@ -1,0 +1,15 @@
+.pageActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 720px) {
+  .pageActions {
+    margin-bottom: 12px;
+  }
+
+  .pageActions :global(.arco-btn) {
+    width: 100%;
+  }
+}

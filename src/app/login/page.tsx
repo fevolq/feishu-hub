@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
-import { isAuthenticated } from "@/server/auth/guards";
-import { LoginForm } from "@/app/login/LoginForm";
+import { isAuthenticated } from "@/modules/auth/server/guards";
+import { LoginForm } from "@/modules/auth/ui/LoginForm";
+import styles from "@/modules/auth/ui/Auth.module.css";
 
 export default async function LoginPage() {
   if (await isAuthenticated()) {
@@ -8,9 +9,9 @@ export default async function LoginPage() {
   }
 
   return (
-    <main className="login-page">
-      <section className="login-panel">
-        <h1 className="login-title">飞书组织</h1>
+    <main className={styles.page}>
+      <section className={styles.panel}>
+        <h1 className={styles.title}>飞书组织</h1>
         <LoginForm />
       </section>
     </main>

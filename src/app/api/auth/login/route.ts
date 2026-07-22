@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { appConfig } from "@/server/config";
+import { appConfig } from "@/shared/server/config";
 import {
   createSessionCookie,
   sessionCookieOptions,
   verifyPassword
-} from "@/server/auth/session";
+} from "@/modules/auth/server/session";
 
 export async function POST(request: NextRequest) {
   const body = (await request.json().catch(() => null)) as { password?: unknown } | null;

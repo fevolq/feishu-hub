@@ -1,0 +1,20 @@
+.nameCell {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.avatar {
+  flex: 0 0 auto;
+  background: #e8f3ff;
+  color: var(--brand);
+  font-weight: 600;
+}
+
+.nameText {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

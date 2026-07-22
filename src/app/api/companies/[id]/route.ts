@@ -1,15 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
-import { requireApiAuth } from "@/server/auth/guards";
-import { getCompany, updateCompany } from "@/server/db/repositories/companies";
-import { parsePositiveIntegerParam } from "@/server/http/route-params";
-
-const updateCompanySchema = z.object({
-  name: z.string().trim().min(1).optional(),
-  appId: z.string().trim().min(1).optional(),
-  appSecret: z.string().trim().min(1).optional(),
-  enabled: z.boolean().optional()
-});
+import { requireApiAuth } from "@/modules/auth/server/guards";
+import {
+  getCompany,
+  toPublicCompany,
+  updateCompany
+} from "@/modules/companies/server/repository";
+import { updateCompanySchema } from "@/modules/companies/server/schemas";
+import { parsePositiveIntegerParam } from "@/shared/http/route-params";
 
 export async function GET(_request: NextRequest, context: { params: Promise<{ id: string }> }) {
   const auth = await requireApiAuth();
@@ -25,7 +22,7 @@ export async function GET(_request: NextRequest, context: { params: Promise<{ id
   if (!company) {
     return NextResponse.json({ error: "公司不存在" }, { status: 404 });
   }
-  return NextResponse.json({ company });
+  return NextResponse.json({ company: toPublicCompany(company) });
 }
 
 export async function PATCH(request: NextRequest, context: { params: Promise<{ id: string }> }) {
@@ -47,5 +44,5 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
   if (!company) {
     return NextResponse.json({ error: "公司不存在" }, { status: 404 });
   }
-  return NextResponse.json({ company });
+  return NextResponse.json({ company: toPublicCompany(company) });
 }

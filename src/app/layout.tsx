@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "@arco-design/web-react/dist/css/arco.css";
+import { ArcoReact19Adapter } from "@/shared/ui/ArcoReact19Adapter";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -10,7 +11,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="zh-CN">
-      <body>{children}</body>
+      <body>
+        <ArcoReact19Adapter>{children}</ArcoReact19Adapter>
+      </body>
     </html>
   );
 }

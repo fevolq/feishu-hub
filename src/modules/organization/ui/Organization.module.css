@@ -1,0 +1,238 @@
+.toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.companySelect {
+  width: 220px;
+}
+
+.statusSelect {
+  width: 120px;
+}
+
+.search {
+  width: 260px;
+}
+
+.splitView {
+  display: grid;
+  grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+  gap: 16px;
+}
+
+.splitView > * {
+  min-width: 0;
+}
+
+.userDetailModal {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.userDetailModal :global(.arco-descriptions-item-value) {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.userHistorySection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detailSectionTitle {
+  color: #1d2433;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.historyLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+}
+
+.historyDayList {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.historyDaySection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.historyDayTitle {
+  width: fit-content;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #f6f8fb;
+  color: #344054;
+  font-weight: 600;
+}
+
+.historyEventCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.historyEventHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.historyEventTime {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.changeDetailTable {
+  min-width: 0;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.changeDetailHead,
+.changeDetailRow {
+  display: grid;
+  grid-template-columns: minmax(120px, 180px) minmax(180px, 1fr) minmax(180px, 1fr);
+  min-width: 620px;
+}
+
+.changeDetailHead {
+  background: #f6f8fb;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.changeDetailHead > span,
+.changeDetailRow > div {
+  min-width: 0;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.changeDetailList .changeDetailRow:last-child > div {
+  border-bottom: 0;
+}
+
+.changeFieldName {
+  color: #344054;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.changeValue {
+  color: #344054;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.changeValueBefore {
+  color: #667085;
+}
+
+.changeValueAfter {
+  color: #1d2433;
+}
+
+.historyAvatarImage {
+  display: block;
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.changeEmpty {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+@media (max-width: 860px) {
+  .splitView {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .usersToolbar {
+    display: grid;
+    grid-template-columns: 104px minmax(0, 1fr) 32px;
+    gap: 8px;
+  }
+
+  .usersToolbar .companySelect {
+    grid-column: 1 / -1;
+  }
+
+  .companySelect,
+  .statusSelect,
+  .search {
+    width: 100%;
+  }
+
+  .usersToolbar .refresh {
+    width: 32px;
+    min-width: 32px;
+    padding: 0;
+  }
+
+  .departmentsToolbar .companySelect {
+    flex: 1 1 100%;
+  }
+
+  .splitView {
+    gap: 12px;
+  }
+
+  .splitView > div:first-child {
+    max-height: 42vh;
+    overflow: auto;
+  }
+
+  .splitView :global(.arco-tree-node-title-block) {
+    min-width: 0;
+  }
+
+  .splitView :global(.arco-tree-node-title) {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .userDetailModal :global(.arco-descriptions-border .arco-descriptions-item),
+  .userDetailModal :global(.arco-descriptions-border .arco-descriptions-item-label),
+  .userDetailModal :global(.arco-descriptions-border .arco-descriptions-item-value) {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .changeDetailHead,
+  .changeDetailRow {
+    min-width: 560px;
+    grid-template-columns: 120px minmax(180px, 1fr) minmax(180px, 1fr);
+  }
+}
